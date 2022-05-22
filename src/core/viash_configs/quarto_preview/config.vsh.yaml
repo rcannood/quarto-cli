@@ -1,0 +1,20 @@
+functionality:
+  name: quarto_preview
+  description: Runs quarto preview on a project.
+  arguments:
+    - name: "--project_dir"
+      type: file
+      must_exist: true
+      description: "Project directory"
+      default: "."
+  resources:
+    - type: bash_script
+      dest: script.sh
+      text: |
+        HOST=`hostname -i`
+        cd "$par_project_dir"
+        quarto preview --port 4444 --no-browser --host "$HOST"
+platforms:
+  - type: docker
+    port: [ "4444" ]
+    image: rocker/verse:4.1
