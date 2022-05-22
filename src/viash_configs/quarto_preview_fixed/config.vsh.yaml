@@ -1,4 +1,4 @@
-unctionality:
+functionality:
   name: quarto_preview_fixed
   description: Runs quarto preview on a project.
   arguments:
