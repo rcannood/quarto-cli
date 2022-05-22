@@ -1,5 +1,5 @@
 functionality:
-  name: quarto_preview_fixed
+  name: quarto_preview_fix
   description: Runs quarto preview on a project.
   arguments:
     - name: "--project_dir"
