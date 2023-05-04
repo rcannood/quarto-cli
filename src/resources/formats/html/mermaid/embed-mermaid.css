@@ -56,7 +56,7 @@ marker {
 }
 .cluster rect {
   fill: var(--mermaid-fg-color--lightest);
-  stroke: var(--mermaid-fg-color--lighter);
+  stroke: var(--mermaid-bg-color--darker);
 }
 .cluster span {
   color: var(--mermaid-label-fg-color);
@@ -160,7 +160,7 @@ g.stateGroup .composit {
   stroke: var(--mermaid-node-fg-color);
 }
 .statediagram-state rect.divider {
-  fill: var(--mermaid-fg-color--lightest);
+  fill: var(--mermaid-bg-color--darkest);
   stroke: var(--mermaid-fg-color--lighter);
 }
 defs #statediagram-barbEnd {

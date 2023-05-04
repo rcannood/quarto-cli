@@ -624,6 +624,8 @@ $font-family-sans-serif: sans-serif !default;
 
 /* SCSS variables */
 $mermaid-bg-color: $body-bg !default;
+$mermaid-bg-color--darker: darken($body-bg, 10%) !default;
+$mermaid-bg-color--darkest: darken($body-bg, 20%) !default;
 $mermaid-edge-color: $secondary !default;
 $mermaid-node-fg-color: $body-color !default;
 $mermaid-fg-color: $body-color !default;
