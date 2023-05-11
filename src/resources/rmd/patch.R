@@ -91,7 +91,7 @@ wrap_asis_output <- function(options, x) {
   # generate output div
   caption <- figure_cap(options)[[1]]
   if (nzchar(caption)) {
-    x <- paste0(x, "\n\n", caption)
+    x <- c(x, "\n\n", caption)
   }
   classes <- paste0("cell-output-display")
   if (isTRUE(options[["output.hidden"]]))
@@ -107,6 +107,7 @@ wrap_asis_output <- function(options, x) {
     grepl("<\\/\\w+>\\s*$", x[[length(x)]]) &&
     !grepl('^<div class="kable-table">', x[[1]])
   ) {
+    x <- c("`````{=html}\n", x, "\n`````")
   }
   
   output_div(x, output_label_placeholder(options), classes)
