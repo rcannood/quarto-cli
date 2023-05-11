@@ -101,9 +101,12 @@ wrap_asis_output <- function(options, x) {
   # (necessary b/c we no longer do this by overriding kable_html,
   # which is in turn necessary to allow kableExtra to parse
   # the return value of kable_html as valid xml)
-  if (grepl("^<\\w+[ >]", x) && grepl("<\\/\\w+>\\s*$", x) && 
-      !grepl('^<div class="kable-table">', x)) {
-    x <- paste0("`````{=html}\n", x, "\n`````")
+  if (
+    length(x) > 0 &&
+    grepl("^<\\w+[ >]", x[[1]]) &&
+    grepl("<\\/\\w+>\\s*$", x[[length(x)]]) &&
+    !grepl('^<div class="kable-table">', x[[1]])
+  ) {
   }
   
   output_div(x, output_label_placeholder(options), classes)
