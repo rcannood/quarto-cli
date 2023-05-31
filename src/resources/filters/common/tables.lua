@@ -1,30 +1,7 @@
 -- tables.lua
 -- Copyright (C) 2021-2022 Posit Software, PBC
 
-function htmlTableCaptionPattern()
-  return tagPattern("[Cc][Aa][Pp][Tt][Ii][Oo][Nn]")
-end
-
-function htmlTableTagNamePattern()
-  return "[Tt][Aa][Bb][Ll][Ee]"
-end
-
-function htmlTablePattern()
-  return tagPattern(htmlTableTagNamePattern())
-end
-
-function htmlPagedTablePattern()
-  return "<script data[-]pagedtable[-]source type=\"application/json\">"
-end
-
-function htmlGtTablePattern()
-  return "<table class=\"gt_table\">"
-end
-
-function tagPattern(tag)
-  local pattern = "(<" .. tag .. "[^>]*>)(.*)(</" .. tag .. ">)"
-  return pattern
-end
+local patterns = require("modules/patterns")
 
 function anonymousTblId()
   return "tbl-anonymous-" .. tostring(math.random(10000000))
@@ -39,13 +16,12 @@ function isReferenceableTbl(tblEl)
          not isAnonymousTblId(tblEl.attr.identifier)
 end
 
-
 function parseTableCaption(caption)
   -- string trailing space
   caption = stripTrailingSpace(caption)
   -- does the caption end with "}"
   local lastInline = caption[#caption]
-  if lastInline.t == "Str" then
+  if lastInline ~= nil and lastInline.t == "Str" then
     if endsWith(trim(lastInline.text), "}") then
       -- find index of first inline that starts with "{"
       local beginIndex = nil
@@ -130,7 +106,7 @@ end
 
 function hasGtHtmlTable(raw)
   if _quarto.format.isRawHtml(raw) and _quarto.format.isHtmlOutput() then
-    return raw.text:match(htmlGtTablePattern())
+    return raw.text:match(patterns.html_gt_table)
   else
     return false
   end
@@ -138,7 +114,7 @@ end
 
 function hasPagedHtmlTable(raw)
   if _quarto.format.isRawHtml(raw) and _quarto.format.isHtmlOutput() then
-    return raw.text:match(htmlPagedTablePattern())
+    return raw.text:match(patterns.html_paged_table)
   else
     return false
   end
@@ -146,7 +122,7 @@ end
 
 function hasRawHtmlTable(raw)
   if _quarto.format.isRawHtml(raw) and _quarto.format.isHtmlOutput() then
-    return raw.text:match(htmlTablePattern())
+    return raw.text:match(patterns.html_table)
   else
     return false
   end

@@ -3,9 +3,7 @@
 --
 -- renders AST nodes to LaTeX
 
-local kCalloutAppearanceDefault = "default"
-local kCalloutDefaultSimple = "simple"
-local kCalloutDefaultMinimal = "minimal"
+local constants = require("modules/constants")
 
 function latexCalloutBoxDefault(title, type, icon) 
 
@@ -132,10 +130,7 @@ function render_latex()
       local type = node.type
       local calloutAppearance = node.appearance
       local icon = node.icon
-
-      quarto.utils.dump(node)
-      
-    
+  
       -- Discover notes in the callout and pull the contents out
       -- replacing with a footnote mark. This is required because
       -- if the footnote stays in the callout, the footnote text
@@ -160,7 +155,7 @@ function render_latex()
     
       -- generate the callout box
       local callout
-      if calloutAppearance == kCalloutAppearanceDefault then
+      if calloutAppearance == constants.kCalloutAppearanceDefault then
         if title == nil then
           title = displayName(type)
         else

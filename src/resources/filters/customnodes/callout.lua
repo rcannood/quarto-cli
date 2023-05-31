@@ -1,6 +1,8 @@
 -- callout.lua
 -- Copyright (C) 2021-2022 Posit Software, PBC
 
+local constants = require("modules/constants")
+
 function calloutType(div)
   for _, class in ipairs(div.attr.classes) do
     if isCallout(class) then 
@@ -27,7 +29,7 @@ _quarto.ast.add_handler({
   -- a function that takes the div node as supplied in user markdown
   -- and returns the custom node
   parse = function(div)
-    preState.hasCallouts = true
+    quarto_global_state.hasCallouts = true
     local title = markdownToInlines(div.attr.attributes["title"])
     if not title or #title == 0 then
       title = resolveHeadingCaption(div)
@@ -60,7 +62,7 @@ _quarto.ast.add_handler({
   slots = { "title", "content" },
 
   constructor = function(tbl)
-    preState.hasCallouts = true
+    quarto_global_state.hasCallouts = true
 
     local t = tbl.type
     local iconDefault = true
@@ -216,10 +218,6 @@ function isCodeCellFigure(el)
   return isFigure
 end
 
-local kCalloutAppearanceDefault = "default"
-local kCalloutDefaultSimple = "simple"
-local kCalloutDefaultMinimal = "minimal"
-
 -- an HTML callout div
 function calloutDiv(node)
   -- the first heading is the title
@@ -236,7 +234,7 @@ function calloutDiv(node)
   local icon = node.icon
   local collapse = node.collapse
 
-  if calloutAppearance == kCalloutAppearanceDefault and title == nil then
+  if calloutAppearance == constants.kCalloutAppearanceDefault and pandoc.utils.stringify(title) == "" then
     title = displayName(type)
   end
 
@@ -341,7 +339,7 @@ function epubCallout(node)
   local calloutAppearance = node.appearance
   local hasIcon = node.icon
 
-  if calloutAppearance == kCalloutAppearanceDefault and title == nil then
+  if calloutAppearance == constants.kCalloutAppearanceDefault and pandoc.utils.stringify(title) == nil then
     title = displayName(type)
   end
   
@@ -400,7 +398,7 @@ function resolveCalloutContents(node, require_title)
     
   -- Add the titles and contents
   -- class_name 
-  if title == nil and require_title then 
+  if pandoc.utils.stringify(title) == "" and require_title then 
     ---@diagnostic disable-next-line: need-check-nil
     title = stringToInlines(type:sub(1,1):upper()..type:sub(2))
   end
@@ -475,7 +473,7 @@ function docxCalloutImage(type)
 
   -- lookup the image
   if svg ~= nil then
-    local img = pandoc.Image({}, svg, '', {[kProjectResolverIgnore]="true"})
+    local img = pandoc.Image({}, svg, '', {[constants.kProjectResolverIgnore]="true"})
     img.attr.attributes["width"] = tostring(16 * scaleFactor)
     img.attr.attributes["height"] = tostring(16 * scaleFactor)
     return img

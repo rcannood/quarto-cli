@@ -1,27 +1,25 @@
 -- includes.lua
 -- Copyright (C) 2020-2022 Posit Software, PBC
 
-kIncludeBeforeBody = "include-before-body"
-kIncludeAfterBody = "include-after-body"
-kIncludeInHeader = "include-in-header"
+local constants = require("modules/constants")
 
-function readIncludes()
+function read_includes()
   return {
     Meta = function(meta)
       -- ensure all includes are meta lists
-      ensureIncludes(meta, kHeaderIncludes)
-      ensureIncludes(meta, kIncludeBefore)
-      ensureIncludes(meta, kIncludeAfter)
+      ensureIncludes(meta, constants.kHeaderIncludes)
+      ensureIncludes(meta, constants.kIncludeBefore)
+      ensureIncludes(meta, constants.kIncludeAfter)
           
       -- read file includes
-      readIncludeFiles(meta, kIncludeInHeader, kHeaderIncludes)
-      readIncludeFiles(meta, kIncludeBeforeBody, kIncludeBefore)
-      readIncludeFiles(meta, kIncludeAfterBody, kIncludeAfter)
+      readIncludeFiles(meta, constants.kIncludeInHeader, constants.kHeaderIncludes)
+      readIncludeFiles(meta, constants.kIncludeBeforeBody, constants.kIncludeBefore)
+      readIncludeFiles(meta, constants.kIncludeAfterBody, constants.kIncludeAfter)
 
       -- read text based includes
-      readIncludeStrings(meta, kHeaderIncludes)
-      readIncludeStrings(meta, kIncludeBefore)
-      readIncludeStrings(meta, kIncludeAfter)
+      readIncludeStrings(meta, constants.kHeaderIncludes)
+      readIncludeStrings(meta, constants.kIncludeBefore)
+      readIncludeStrings(meta, constants.kIncludeAfter)
      
       return meta
     end
@@ -53,8 +51,7 @@ function readIncludeFiles(meta, includes, target)
       -- read file contents
       local f = io.open(pandoc.utils.stringify(file), "r")
       if f == nil then 
-        error("Error resolving " .. target .. "- unable to open file " .. file)
-        os.exit(1)
+        fail("Error resolving " .. target .. "- unable to open file " .. file)
       end
       local contents = f:read("*all")
       f:close()

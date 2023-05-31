@@ -32,6 +32,8 @@ export interface RenderOptions {
   previewServer?: boolean;
   setProjectDir?: boolean;
   echo?: boolean;
+  warning?: boolean;
+  quietPandoc?: boolean;
 }
 
 export interface RenderServices {
@@ -54,7 +56,9 @@ export interface RunPandocResult {
   inputMetadata: Metadata;
   inputTraits: PandocInputTraits;
   resources: string[];
-  postprocessors?: Array<(output: string) => Promise<void>>;
+  postprocessors?: Array<
+    (output: string) => Promise<{ supporting: string[] } | void>
+  >;
   htmlPostprocessors: Array<HtmlPostProcessor>;
   htmlFinalizers?: Array<(doc: Document) => Promise<void>>;
 }
@@ -69,6 +73,7 @@ export type HtmlPostProcessor = (
     inputMetadata: Metadata;
     inputTraits: PandocInputTraits;
     renderedFormats: RenderedFormat[];
+    quiet?: boolean;
   },
 ) => Promise<HtmlPostProcessResult>;
 

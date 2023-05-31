@@ -50,6 +50,7 @@ import {
   kServer,
   kTargetFormat,
   kTheme,
+  kWarning,
 } from "../../config/constants.ts";
 import {
   formatLanguage,
@@ -444,12 +445,6 @@ async function resolveFormats(
     formats = projFormatKeys;
   }
 
-  // All the project type to manipulate the format list on a per
-  // file bases
-  if (projType.formatsForFile) {
-    formats = projType.formatsForFile(formats, file, project);
-  }
-
   // If the file itself has specified permissible
   // formats, filter the list of formats to only
   // include those formats
@@ -545,6 +540,11 @@ async function resolveFormats(
     // If options request, force echo
     if (options.echo) {
       userFormat.execute[kEcho] = true;
+    }
+
+    // If options request, force warning
+    if (options.warning) {
+      userFormat.execute[kWarning] = true;
     }
 
     // The format description

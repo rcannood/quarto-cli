@@ -1,6 +1,7 @@
 -- code.lua
 -- Copyright (C) 2020-2022 Posit Software, PBC
 
+local constants = require("modules/constants")
 
 -- for a given language, the comment character(s)
 local kLangCommentChars = {
@@ -58,24 +59,10 @@ local kLangCommentChars = {
 
 }
 
-local kCodeAnnotationsParam = 'code-annotations'
-local kDataCodeCellTarget = 'data-code-cell'
-local kDataCodeCellLines = 'data-code-lines'
-local kDataCodeCellAnnotation = 'data-code-annotation'
-local kDataCodeAnnonationClz = 'code-annotation-code'
-
-local kCodeAnnotationStyleNone = "none"
-
-local kCodeLine = "code-line"
-local kCodeLines = "code-lines"
-
-local hasAnnotations = false;
-
-local kCellAnnotationClass = "cell-annotation"
-
+local hasAnnotations = false
 
 function isAnnotationCell(el) 
-  return el and el.t == "Div" and el.attr.classes:includes(kCellAnnotationClass)
+  return el and el.t == "Div" and el.attr.classes:includes(constants.kCellAnnotationClass)
 end
 -- annotations appear at the end of the line and are of the form
 -- # <1> 
@@ -278,7 +265,7 @@ function processLaTeXAnnotation(line, annoteNumber, annotationProvider)
   -- we specially handle LaTeX output in coordination with the post processor
   -- which will replace any of these tokens as appropriate.   
   local hasHighlighting = param('text-highlighting', false)
-  if param(kCodeAnnotationsParam) == kCodeAnnotationStyleNone then
+  if param(constants.kCodeAnnotationsParam) == constants.kCodeAnnotationStyleNone then
     local replaced = annotationProvider.replaceAnnotation(line, annoteNumber, '') 
     return replaced
   else
@@ -297,7 +284,7 @@ function processLaTeXAnnotation(line, annoteNumber, annotationProvider)
 end
 
 function processAsciidocAnnotation(line, annoteNumber, annotationProvider)
-  if param(kCodeAnnotationsParam) == kCodeAnnotationStyleNone then
+  if param(constants.kCodeAnnotationsParam) == constants.kCodeAnnotationStyleNone then
     local replaced = annotationProvider.replaceAnnotation(line, annoteNumber, '') 
     return replaced
   else
@@ -335,6 +322,9 @@ function code_annotations()
   -- the localized strings
   local language = param("language", nil)
 
+  -- an id counter to provide nice numeric ids to cell
+  local idCounter = 1
+
   -- walk the blocks and look for annotated code
   -- process the list top down so that we see the outer
   -- code divs first
@@ -343,7 +333,7 @@ function code_annotations()
     Blocks = function(blocks) 
 
       -- the user request code annotations value
-      local codeAnnotations = param(kCodeAnnotationsParam)
+      local codeAnnotations = param(constants.kCodeAnnotationsParam)
 
       -- if code annotations is false, then shut it down
       if codeAnnotations ~= false then
@@ -354,7 +344,6 @@ function code_annotations()
         local pendingAnnotations = nil
         local pendingCellId = nil
         local pendingCodeCell = nil
-        local idCounter = 1
 
         local clearPending = function() 
           pendingAnnotations = nil
@@ -406,8 +395,8 @@ function code_annotations()
             pendingCellId = identifier
             
             -- decorate the cell and return it
-            if codeAnnotations ~= kCodeAnnotationStyleNone then
-              resolvedCodeBlock.attr.classes:insert(kDataCodeAnnonationClz);
+            if codeAnnotations ~= constants.kCodeAnnotationStyleNone then
+              resolvedCodeBlock.attr.classes:insert(constants.kDataCodeAnnonationClz);
             end
             return resolvedCodeBlock
           else
@@ -430,7 +419,7 @@ function code_annotations()
                   local codeCell = processCodeCell(el, cellId)
                   if codeCell then
                     processedAnnotation = true
-                    if codeAnnotations ~= kCodeAnnotationStyleNone then
+                    if codeAnnotations ~= constants.kCodeAnnotationStyleNone then
                       codeCell.attr.identifier = cellId;
                     end
                   end
@@ -460,7 +449,7 @@ function code_annotations()
               local cellId = resolveCellId(block.attr.identifier)
               local codeCell = processCodeCell(block, cellId)
               if codeCell then
-                if codeAnnotations ~= kCodeAnnotationStyleNone then
+                if codeAnnotations ~= constants.kCodeAnnotationStyleNone then
                   codeCell.attr.identifier = cellId;
                 end
                 outputBlock(codeCell)
@@ -492,9 +481,9 @@ function code_annotations()
                   term = "<" .. tostring(annotationNumber) .. ">"
                 else
                   if lineNumMeta.count == 1 then
-                    term = language[kCodeLine] .. " " .. lineNumMeta.text;
+                    term = language[constants.kCodeLine] .. " " .. lineNumMeta.text;
                   else
-                    term = language[kCodeLines] .. " " .. lineNumMeta.text;
+                    term = language[constants.kCodeLines] .. " " .. lineNumMeta.text;
                   end
                 end
 
@@ -506,11 +495,14 @@ function code_annotations()
                 -- for markdown / gfm we should drop the spans
                 local definition = nil
                 if _quarto.format.isHtmlOutput() then
-                  definition = pandoc.Span(definitionContent, {
-                    [kDataCodeCellTarget] = pendingCellId,
-                    [kDataCodeCellLines] = lineNumMeta.lineNumbers,
-                    [kDataCodeCellAnnotation] = annotationToken
-                  });
+                  -- use an attribute list since it then guarantees that the
+                  -- order of the attributes is consistent from run to run
+                  local attribs = pandoc.AttributeList {
+                    {constants.kDataCodeCellTarget, pendingCellId},
+                    {constants.kDataCodeCellLines, lineNumMeta.lineNumbers},
+                    {constants.kDataCodeCellAnnotation, annotationToken}
+                  }
+                  definition = pandoc.Span(definitionContent, pandoc.Attr(attribs))
                 else 
                   definition = pandoc.Plain(definitionContent)
                 end
@@ -541,10 +533,10 @@ function code_annotations()
             end
 
             -- if there is a pending code cell, then insert into that and add it
-            if codeAnnotations ~= kCodeAnnotationStyleNone then
+            if codeAnnotations ~= constants.kCodeAnnotationStyleNone then
               if pendingCodeCell ~= nil then
                 -- wrap the definition list in a cell
-                local dlDiv = pandoc.Div({dl}, pandoc.Attr("", {kCellAnnotationClass}))
+                local dlDiv = pandoc.Div({dl}, pandoc.Attr("", {constants.kCellAnnotationClass}))
                 pendingCodeCell.content:insert(2, dlDiv)
                 outputBlock(pendingCodeCell)
                 clearPending()
@@ -569,7 +561,7 @@ function code_annotations()
   -- return code_filter
   return {
     Pandoc = function(doc)
-      local codeAnnotations = param(kCodeAnnotationsParam)
+      local codeAnnotations = param(constants.kCodeAnnotationsParam)
 
       -- if code annotations is false, then don't even walk it
       if codeAnnotations == false then

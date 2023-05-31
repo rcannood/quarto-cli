@@ -20,8 +20,14 @@ import { kMecaVersion, MecaItem, MecaManifest, toXml } from "./meca.ts";
 import { zip } from "../../../core/zip.ts";
 import {
   kEnvironmentFiles,
+  kMecaArchive,
+  ManuscriptConfig,
   ResolvedManuscriptConfig,
 } from "./manuscript-types.ts";
+import { Format } from "../../../config/types.ts";
+import { dirAndStem } from "../../../core/path.ts";
+import { inputFileForOutputFile } from "../../project-index.ts";
+import { info } from "log/mod.ts";
 
 // REES Compatible execution files
 // from https://repo2docker.readthedocs.io/en/latest/config_files.html#config-files
@@ -44,9 +50,44 @@ const kExecutionFiles = [
   "Dockerfile",
 ];
 
+const kMecaSuffix = "-meca.zip";
+
 const kReferencedFileType = "manuscript_reference";
 const kExecutionEnvironmentType = "execution_environment";
 const kResourceFileType = "manuscript_resource";
+
+export const shouldMakeMecaBundle = (
+  formats: Array<string | Format>,
+  manuConfig?: ManuscriptConfig,
+) => {
+  if (!manuConfig || manuConfig[kMecaArchive] !== false) {
+    // See if it was explicitely on
+    if (manuConfig && manuConfig[kMecaArchive] === true) {
+      return true;
+    }
+
+    // See if we're producing JATS, then enable it
+    return formats.find((format) => {
+      if (typeof (format) === "string") {
+        return isJatsOutput(format);
+      } else {
+        return isJatsOutput(format.pandoc);
+      }
+    });
+  } else {
+    // Explicitely turned off
+    return false;
+  }
+};
+
+export const mecaFileName = (file: string, config: ManuscriptConfig) => {
+  if (typeof (config[kMecaArchive]) === "string") {
+    return config[kMecaArchive];
+  } else {
+    const [_, stem] = dirAndStem(file);
+    return `${stem}${kMecaSuffix}`;
+  }
+};
 
 export const createMecaBundle = async (
   mecaFile: string,
@@ -65,9 +106,20 @@ export const createMecaBundle = async (
     });
   });
 
-  const jatsArticle = outputFiles.find((output) => {
-    return isJatsOutput(output.format.identifier["base-format"] || "html");
-  });
+  // Find the JATS article
+  // Look back to front since the article should be the last rendered file
+  let jatsArticle;
+  for (const outputFile of outputFiles.reverse()) {
+    if (isJatsOutput(outputFile.format.pandoc)) {
+      const input = await inputFileForOutputFile(context, outputFile.file);
+      if (input) {
+        if (relative(context.dir, input.file) === manuscriptConfig.article) {
+          jatsArticle = outputFile;
+          break;
+        }
+      }
+    }
+  }
 
   if (jatsArticle) {
     // Move the output to the working directory
@@ -94,7 +146,7 @@ export const createMecaBundle = async (
 
     // Move the JATS article to the working directory
     const articlePath = toWorkingDir(
-      jatsArticle?.file,
+      jatsArticle.file,
       relative(outputDir, jatsArticle?.file),
       false,
     );
@@ -106,7 +158,7 @@ export const createMecaBundle = async (
       jatsArticle.supporting.forEach((file) => {
         const relPath = isAbsolute(file) ? relative(outputDir, file) : file;
         const absPath = isAbsolute(file) ? file : join(outputDir, file);
-        const workingPath = toWorkingDir(absPath, relPath, true);
+        const workingPath = toWorkingDir(absPath, relPath, false);
 
         // Add Supporting files to manifest
         const items = mecaItemsForPath(workingDir, workingPath);
@@ -202,6 +254,7 @@ export const createMecaBundle = async (
     ];
 
     // Compress the working directory in a zip
+    info(`Bundling ${filesToZip.length} files\n`);
     const zipResult = await zip(filesToZip, mecaFile, {
       cwd: workingDir,
     });

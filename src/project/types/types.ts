@@ -4,12 +4,7 @@
  * Copyright (C) 2020-2022 Posit Software, PBC
  */
 
-import {
-  Format,
-  FormatExtras,
-  NotebookPreviewDescriptor,
-  PandocFlags,
-} from "../../config/types.ts";
+import { Format, FormatExtras, PandocFlags } from "../../config/types.ts";
 import { Metadata } from "../../config/types.ts";
 import {
   PandocRenderer,
@@ -43,11 +38,6 @@ export interface ProjectType {
     format: Format,
     project?: ProjectContext,
   ) => Format;
-  formatsForFile?: (
-    formats: string[],
-    file: RenderFile,
-    project?: ProjectContext,
-  ) => string[];
   formatExtras?: (
     context: ProjectContext,
     input: string,
@@ -55,14 +45,13 @@ export interface ProjectType {
     format: Format,
     services: RenderServices,
   ) => Promise<FormatExtras>;
-  notebooks?: (
-    context: ProjectContext,
-  ) => NotebookPreviewDescriptor[];
+  previewSkipUnmodified?: boolean;
   renderResultFinalOutput?: (
     renderResults: RenderResult,
     relativeToInputDir?: string,
   ) => RenderResultFile | undefined;
   projectFormatsOnly?: boolean;
+  incrementalFormatPreviewing?: boolean; // Use the input format for a requested output file in the preview server
   isSupportedFormat?: (format: Format) => boolean;
   metadataFields?: () => Array<string | RegExp>;
   filterParams?: (options: PandocOptions) => Promise<Metadata | undefined>;

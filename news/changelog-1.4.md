@@ -10,6 +10,9 @@
 
 - Add Slovak translation (author: @tom67)
 - Improve Italian translation of 'proof' (author: @espinielli)
+- Add Greek translation (author: @cultab)
+- Add Norwegian translation (author: @lektorodd)
+- Add Lithuanian translation (author: @GegznaV)
 
 ## HTML Format
 
@@ -17,6 +20,12 @@
 - ([#5189](https://github.com/quarto-dev/quarto-cli/issues/5189)): Ensure appendix shows even when `page-layout` is custom.
 - ([#5393](https://github.com/quarto-dev/quarto-cli/issues/5393)): Properly set color of headings without using opacity.
 - ([#5431](https://github.com/quarto-dev/quarto-cli/issues/5431)): Properly apply column positioning to title metadata.
+- ([#5700](https://github.com/quarto-dev/quarto-cli/issues/5700)): Don't show scrollbars on Windows when hovering over hover code annotations.
+- ([#5708](https://github.com/quarto-dev/quarto-cli/issues/5708)): Fix hang when viewing pages with specific query parameter
+
+## RevealJS Format
+
+- [#5546](https://github.com/quarto-dev/quarto-cli/issues/5546): Images inside links can't be stretched, and so auto-stretch feature now ignores them.
 
 ## Website Listings
 
@@ -24,21 +33,37 @@
 
 ## Websites
 
-- ([#5389](https://github.com/quarto-dev/quarto-cli/issues/5389)): Allow a a website project to provide a default image used in social metadata tags.
+- ([#5389](https://github.com/quarto-dev/quarto-cli/issues/5389)): Allow a website project to provide a default image used in social metadata tags.
 - Add support for `navbar > toggle-position` to control whether the responsive navbar toggle appears on the right or the left.
+- ([#5604](https://github.com/quarto-dev/quarto-cli/issues/5604)): Process footer content as blocks.
+- ([#5624](https://github.com/quarto-dev/quarto-cli/issues/5624)): Add support for localized Cookie Consent (using either the document's language or by specifying the language explicitly under the cookie consent key).
+- ([#5756](https://github.com/quarto-dev/quarto-cli/issues/5756)): Add `rel="..."` resolution to navbar tools.
+
+## Preview
+
+- Display render output/progress for previews that take longer than 2 seconds
+- Ability to cancel an executing preview from within the progress UI
+- Automatically render missing formats (e.g. PDF, MS Word) on the fly
 
 ## Miscellaneous
 
 - ([#2214](https://github.com/quarto-dev/quarto-cli/issues/2214), reopened): don't report a non-existing version of Google Chrome in macOS.
 - ([#5377](https://github.com/quarto-dev/quarto-cli/issues/5377)): support `from: ` formats correctly.
+- Exit if project pre or post render script fails
+- Use InternalError in typescript code, and offer a more helpful error message when an internal error happens.
 
 ## Docusaurus Format
 
 - ([#5152](https://github.com/quarto-dev/quarto-cli/issues/5152)): Support for `code-line-numbers` in Docusaurus output.
 
+## Beamer Format
+
+- [#5536](https://github.com/quarto-dev/quarto-cli/issues/5536): Correctly support Code Filename feature for Beamer output by fixing issue with float environment.
+
 ## OJS engine
 
 - Update observablehq's runtime to version 5.6.0.
+- [#5215](https://github.com/quarto-dev/quarto-cli/issues/5215): Report CORS requests as plain text when serving single-file previews.
 
 ## Mermaid diagrams
 
@@ -49,7 +74,13 @@
 
 - ([#5466](https://github.com/quarto-dev/quarto-cli/issues/5466)): Provide global environment `_G` to user filters.
 - ([#5461](https://github.com/quarto-dev/quarto-cli/issues/5461)): ensure return type of `stripTrailingSpace` is always `pandoc.List`.
+- Add support for relative paths in `require()` calls.
+- ([#5242](https://github.com/quarto-dev/quarto-cli/issues/5242)): Add line numbers to error messages.
 
 ## Knitr engine
 
 - ([#5506](https://github.com/quarto-dev/quarto-cli/issues/5506)): Fix error in if-statement when `knitr::asis_output(x)` is used with `length(x) != 1` (author: @rcannood).
+
+## Other Fixes and Improvements
+
+- ([#5454](https://github.com/quarto-dev/quarto-cli/issues/5454)): Fix errors previewing with formats such as `asciidoc` are added to book projects.

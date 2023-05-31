@@ -8,6 +8,7 @@ import { Document } from "../core/deno-dom.ts";
 import {
   kAppendixAttributionBibTex,
   kAppendixAttributionCiteAs,
+  kArticleNotebookLabel,
   kBackToTop,
   kBaseFormat,
   kCache,
@@ -52,6 +53,7 @@ import {
   kCss,
   kDfPrint,
   kDisplayName,
+  kDownloadUrl,
   kEcho,
   kEmbedResources,
   kEngine,
@@ -128,18 +130,23 @@ import {
   kListingPageOrderByNumberAsc,
   kListingPageOrderByNumberDesc,
   kListings,
+  kManuscriptMecaBundle,
   kMarkdownHeadings,
   kMathjax,
   kMathml,
   kMergeIncludes,
   kMermaidFormat,
   kNotebookLinks,
+  kNotebookPreserveCells,
+  kNotebookPreviewBack,
+  kNotebookPreviewDownload,
   kNotebooks,
   kNotebookSubarticles,
   kNotebookView,
   kNotebookViewStyle,
   kNumberOffset,
   kNumberSections,
+  kOtherLinksTitle,
   kOutput,
   kOutputDivs,
   kOutputExt,
@@ -158,11 +165,11 @@ import {
   kRepoActionLinksIssue,
   kRepoActionLinksSource,
   kResourcePath,
-  kSearch,
   kSearchClearButtonTitle,
   kSearchCopyLinkTitle,
   kSearchDetatchedCancelButtonTitle,
   kSearchHideMatchesText,
+  kSearchLabel,
   kSearchMatchingDocumentsText,
   kSearchMoreMatchText,
   kSearchNoResultsText,
@@ -305,6 +312,7 @@ export interface NotebookPreviewDescriptor {
   notebook: string;
   url?: string;
   title?: string;
+  [kDownloadUrl]?: string;
 }
 
 export interface FormatExtras {
@@ -321,7 +329,9 @@ export interface FormatExtras {
   };
   [kFilterParams]?: Record<string, unknown>;
   [kNotebooks]?: NotebookPreviewDescriptor[];
-  postprocessors?: Array<(output: string) => Promise<void>>;
+  postprocessors?: Array<
+    (output: string) => Promise<{ supporting: string[] } | void>
+  >;
   templateContext?: FormatTemplateContext;
   html?: {
     [kDependencies]?: FormatDependency[];
@@ -433,6 +443,7 @@ export interface FormatRender {
     | boolean
     | NotebookPreviewDescriptor
     | NotebookPreviewDescriptor[];
+  [kNotebookPreserveCells]?: boolean;
 }
 
 export interface FormatExecute {
@@ -548,6 +559,7 @@ export interface FormatLanguage {
   [kTocTitleDocument]?: string;
   [kTocTitleWebsite]?: string;
   [kRelatedFormatsTitle]?: string;
+  [kOtherLinksTitle]?: string;
   [kSourceNotebookPrefix]?: string;
   [kRelatedNotebooksTitle]?: string;
   [kCalloutTipCaption]?: string;
@@ -581,7 +593,7 @@ export interface FormatLanguage {
   [kRepoActionLinksEdit]?: string;
   [kRepoActionLinksSource]?: string;
   [kRepoActionLinksIssue]?: string;
-  [kSearch]?: string;
+  [kSearchLabel]?: string;
   [kSearchNoResultsText]?: string;
   [kCopyButtonTooltip]?: string;
   [kCopyButtonTooltipSuccess]?: string;
@@ -634,6 +646,10 @@ export interface FormatLanguage {
   [kListingPageMinutesCompact]?: string;
   [kListingPageCategoryAll]?: string;
   [kListingPageNoMatches]?: string;
+  [kNotebookPreviewDownload]?: string;
+  [kNotebookPreviewBack]?: string;
+  [kArticleNotebookLabel]?: string;
+  [kManuscriptMecaBundle]?: string;
 
   // langauge variations e.g. eg, fr, etc.
   [key: string]: unknown;
@@ -648,4 +664,6 @@ export interface FormatLink {
   icon?: string;
   title: string;
   href: string;
+  order?: number;
+  attr?: Record<string, string>;
 }

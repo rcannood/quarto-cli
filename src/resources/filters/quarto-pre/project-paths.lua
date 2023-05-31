@@ -1,8 +1,7 @@
 -- project_paths.lua
 -- Copyright (C) 2020-2022 Posit Software, PBC
 
-
-kProjectResolverIgnore = 'project-resolve-ignore'
+local constants = require("modules/constants")
 
 local function resolveProjectPath(path)
   local offset = _quarto.projectOffset()
@@ -20,8 +19,8 @@ end
 function project_paths()
   return {
     Image = function(el)
-      if el.attr.attributes[kProjectResolverIgnore] then
-        el.attr.attributes[kProjectResolverIgnore] = ''
+      if el.attr.attributes[constants.kProjectResolverIgnore] then
+        el.attr.attributes[constants.kProjectResolverIgnore] = ''
         return el
       end
 
@@ -31,16 +30,16 @@ function project_paths()
       if el.src then
         local resolvedPath = resolveProjectPath(el.src)
         if resolvedPath ~= nil then
-          el.src = resolvedPath;
+          el.src = resolvedPath
           resolved = true
         end
       end
 
       -- Resolve image data-src
       if el.attributes['data-src'] then
-        local resolvedPath = resolveProjectPath(el.src)
+        local resolvedPath = resolveProjectPath(el.attributes['data-src'])
         if resolvedPath ~= nil then
-          el.attributes['data-src'] = resolvedPath;
+          el.attributes['data-src'] = resolvedPath
           resolved = true
         end
       end
@@ -51,15 +50,15 @@ function project_paths()
     end,
 
     Link = function(el)
-      if el.attr.attributes[kProjectResolverIgnore] then
-        el.attr.attributes[kProjectResolverIgnore] = ''
+      if el.attr.attributes[constants.kProjectResolverIgnore] then
+        el.attr.attributes[constants.kProjectResolverIgnore] = ''
         return el
       end
 
-      if el.href then
-        local resolvedHref = resolveProjectPath(el.href)
+      if el.target then
+        local resolvedHref = resolveProjectPath(el.target)
         if resolvedHref then
-          el.href = resolvedHref
+          el.target = resolvedHref
           return el
         end
       end
