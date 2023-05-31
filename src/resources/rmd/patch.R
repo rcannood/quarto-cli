@@ -100,7 +100,7 @@ wrap_asis_output <- function(options, x) {
   }
   classes <- paste0("cell-output-display")
   if (isTRUE(options[["output.hidden"]]))
-    classes <- c(classes, " .hidden")
+    classes <- paste0(classes, " .hidden")
   
   # if this is an html table then wrap it further in ```{=html}
   # (necessary b/c we no longer do this by overriding kable_html,
